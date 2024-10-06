@@ -1,0 +1,9 @@
+services: 
+  database:
+    image: mysql:latest
+    container_name: customers-database
+    environment:
+        MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "${MYSQL_PORT}:3306"
