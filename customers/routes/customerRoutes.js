@@ -5,6 +5,6 @@ const controllerCustomer = require('../controllers/CustomerController');
 
 router.post('/', controllerCustomer.createCustomer);
 router.get('/:cpfCnpj', controllerCustomer.getCustomer);
-router.put('/poits', controllerCustomer.updatePoits)
+router.put('/points', controllerCustomer.updatePoints)
 
 module.exports = router;

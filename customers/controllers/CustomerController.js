@@ -61,14 +61,14 @@ module.exports = class CustomerController {
         }
     }
 
-    static async updatePoits(req, res) {
-        const { totalPoits, cpfCnpj } = req.body;
+    static async updatePoints(req, res) {
+        const { totalPoints, cpfCnpj } = req.body;
 
-        if (!totalPoits || !cpfCnpj) {
+        if (!totalPoints || !cpfCnpj) {
             req.status(400).json({ message: 'All fields must be informed' });
         }
 
-        if (!Number(totalPoits)) {
+        if (!Number(totalPoints)) {
             req.status(400).json({ message: 'The point value must be numeric' })
         }
 
@@ -84,7 +84,7 @@ module.exports = class CustomerController {
                 return res.status(400).json({message: 'Unregistered customer'});
             }
 
-            customer.points += totalPoits;
+            customer.points += totalPoints;
             
             await Customer.update(customer)
 

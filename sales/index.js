@@ -12,7 +12,7 @@ const routesOrderItems = require('./routes/orderItemsRoutes');
 const routesOrder = require('./routes/orderRoutes');
 
 // Models
-const OrderItems = require('./models/OrderItems');
+const OrderItem = require('./models/OrderItem');
 
 app.use(express.json());
 
