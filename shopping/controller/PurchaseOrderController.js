@@ -1,4 +1,4 @@
-import { getIngredientById } from '../service/ProductService';
+const getIngredientById = require('../service/ProductService');
 
 module.exports = {
   createdPurchaseOrder: async function(args, callback) {

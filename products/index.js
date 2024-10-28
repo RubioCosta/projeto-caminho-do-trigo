@@ -1,12 +1,20 @@
+require('dotenv').config()
 const jayson = require('jayson');
+const conn = require('./db/conn');
+
+const PORT_PRODUCTS = process.env.PORT_PRODUCTS;
 
 // Controller
-import IngredientsController from './controller/IngredientsController';
+const IngredientsController = require('./controller/IngredientsController');
 
 const server = jayson.server({
   ...IngredientsController
 });
 
-server.http().listen(8081, () => {
-    console.log("Conectado na porta 8081");
+conn.sync().then(() => {
+  server.http().listen(PORT_PRODUCTS, () => {
+    console.log(`Conectado na porta ${PORT_PRODUCTS}`);
+  });
+}).catch((err) => {
+  console.error('Error syncing database:', err);
 });

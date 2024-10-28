@@ -16,8 +16,8 @@ const OrderItems = require('./models/OrderItems');
 
 app.use(express.json());
 
-app.use('/api/order-items', routesOrderItems);
-app.use('/api/order', routesOrder);
+app.use('/api/v1/order-items', routesOrderItems);
+app.use('/api/v1/order', routesOrder);
 
 app.get('*', (req, res) => {
     res.send('Sales page');

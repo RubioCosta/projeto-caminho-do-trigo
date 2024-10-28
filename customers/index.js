@@ -15,7 +15,7 @@ const Customer = require('./models/Customer');
 
 app.use(express.json());
 
-app.use('/api/customer', routesCustomer);
+app.use('/api/v1/customer', routesCustomer);
 
 app.get('*', (req, res) => {
     res.send('Customers page');
