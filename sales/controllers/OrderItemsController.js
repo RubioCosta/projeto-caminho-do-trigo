@@ -27,7 +27,7 @@ module.exports = class OrderItemsController {
             await OrderItem.create(data);
             res.status(201).json({ message: 'Item created successfully' });
         } catch (error) {
-            const errorMessage = error.data.response.error || error.data.response.message
+            const errorMessage = error?.data?.response?.error || error?.data?.response?.message
             res.status(400).json({ message: errorMessage || 'Failed to create order item' });
         }
     }
@@ -42,7 +42,7 @@ module.exports = class OrderItemsController {
             await OrderItem.destroy({ where: { id: idItem } });
             res.status(200).json({ message: 'Order item deleted successfully' });
         } catch (error) {
-            const errorMessage = error.data.response.error || error.data.response.message
+            const errorMessage = error?.data?.response?.error || error?.data?.response?.message
             res.status(400).json({ message: errorMessage || 'Failed to delete item from order' });
         }
     }
@@ -60,7 +60,7 @@ module.exports = class OrderItemsController {
             await OrderItem.update({ quantity: qtdProduct }, { where: { id: idItem } });
             res.status(200).json({ message: 'Order item updated successfully' });
         } catch (e) {
-            const errorMessage = error.data.response.error || error.data.response.message
+            const errorMessage = error?.data?.response?.error || error?.data?.response?.message
             res.status(400).json({ message: errorMessage || 'Failed to update order item' });
         }
     }
@@ -74,7 +74,7 @@ module.exports = class OrderItemsController {
 
             res.status(200).json(orderItems);
         } catch (e) {
-            const errorMessage = error.data.response.error || error.data.response.message
+            const errorMessage = error?.data?.response?.error || error?.data?.response?.message
             res.status(400).json({ message: errorMessage || 'Failed to get order items' });
         }
     }
