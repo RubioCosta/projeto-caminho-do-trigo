@@ -1,99 +1,131 @@
-const Customer = require('../models/Customer');
+const { errorResponse } = require("../utils/utils");
+const Customer = require("../models/Customer");
 
-module.exports = class CustomerController {
+async function createCustomer(req, res) {
+  const { cpfCnpj, name, address, telephone } = req.body;
 
-    static async createCustomer(req, res) {
-        const { cpfCnpj, name, address, telephone } = req.body;
+  if (!cpfCnpj || !name || !address || !telephone) {
+    const { httpStatusCode, code, message } = errorResponse(
+      "REQUIRED_FIELD_MISSING",
+    );
+    return res.status(httpStatusCode).json({ code, message });
+  }
 
-        if (!cpfCnpj || !name || !address || !telephone) {
-            req.status(400).json({ message: 'All fields must be informed' })
-        }
+  try {
+    const customerExists = await Customer.findOne({
+      where: {
+        cpfCnpj,
+      },
+    });
 
-        try {
-
-            const customerExists = await Customer.findOne({
-                where: {
-                    cpfCnpj
-                }
-            });
-
-            if(customerExists) {
-                return res.status(400).json({message: 'Customer already exists'});
-            }
-
-            const customer = await Customer.create({
-                cpfCnpj,
-                name,
-                address,
-                telephone
-            });
-
-            res.status(201).json(customer);
-        } catch(error) {
-            const messageError = error.data.respose.error || error.data.respose.message
-            res.status(500).json({message: messageError || 'Failed to create custumer'});
-        }
-        
+    if (customerExists) {
+      const { httpStatusCode, code, message } = errorResponse(
+        "CUSTOMER_ALREADY_EXISTS",
+      );
+      return res.status(httpStatusCode).json({ code, message });
     }
 
-    static async getCustomer(req, res) {
-        const { cpfCnpj } = req.params;
+    const customer = await Customer.create({
+      cpfCnpj,
+      name,
+      address,
+      telephone,
+    });
 
-        if (!cpfCnpj) {
-            req.status(400).json({ message: 'All fields must be informed' })
-        }
+    const { points, id, createdAt } = customer;
 
-        try {
-            const customer = await Customer.findOne({
-                where: {
-                    cpfCnpj
-                }
-            });
+    res.status(201).json({
+      id,
+      points,
+      createdAt,
+    });
+  } catch (error) {
+    console.log(`CustomerController - createCustomer: ${error}`);
+    const { httpStatusCode, code, message } = errorResponse(
+      "INTERNAL_SERVER_ERROR",
+    );
+    res.status(httpStatusCode).json({ code, message });
+  }
+}
 
-            if(!customer) {
-                return res.status(404).json({message: 'Customer not found'});
-            }
+async function getCustomer(req, res) {
+  const { cpfCnpj } = req.params;
 
-            res.status(200).json(customer);
-        } catch(error) {
-            const messageError = error.data.respose.error || error.data.respose.message
-            res.status(400).json({message: messageError || 'Failed to search for user'});
-        }
+  if (!cpfCnpj) {
+    const { httpStatusCode, code, message } = errorResponse(
+      "REQUIRED_FIELD_MISSING",
+    );
+    return res.status(httpStatusCode).json({ code, message });
+  }
+
+  try {
+    const customer = await Customer.findOne({
+      where: {
+        cpfCnpj,
+      },
+    });
+
+    if (!customer) {
+      const { httpStatusCode, code, message } =
+        errorResponse("CUSTOMER_NOT_FOUND");
+      return res.status(httpStatusCode).json({ code, message });
     }
 
-    static async updatePoints(req, res) {
-        const { totalPoints, cpfCnpj } = req.body;
+    res.status(200).json(customer);
+  } catch (error) {
+    console.log(`CustomerController - getCustomer: ${error}`);
+    const { httpStatusCode, code, message } = errorResponse(
+      "INTERNAL_SERVER_ERROR",
+    );
+    res.status(httpStatusCode).json({ code, message });
+  }
+}
 
-        if (!totalPoints || !cpfCnpj) {
-            req.status(400).json({ message: 'All fields must be informed' });
-        }
+async function updatePoints(req, res) {
+  const { totalPoints, cpfCnpj } = req.body;
 
-        if (!Number(totalPoints)) {
-            req.status(400).json({ message: 'The point value must be numeric' })
-        }
+  if (!totalPoints || !cpfCnpj) {
+    const { httpStatusCode, code, message } = errorResponse(
+      "REQUIRED_FIELD_MISSING",
+    );
+    return res.status(httpStatusCode).json({ code, message });
+  }
 
-        try {
+  if (!Number(totalPoints)) {
+    const { httpStatusCode, code, message } =
+      errorResponse("POINTS_NOT_NUMERIC");
+    return res.status(httpStatusCode).json({ code, message });
+  }
 
-            const customer = await Customer.findOne({
-                where: {
-                    cpfCnpj
-                }
-            });
+  try {
+    const customer = await Customer.findOne({
+      where: {
+        cpfCnpj,
+      },
+    });
 
-            if(!customer) {
-                return res.status(400).json({message: 'Unregistered customer'});
-            }
-
-            customer.points += totalPoints;
-            
-            await Customer.update(customer)
-
-            res.status(200).json({ message: 'Customer points updated successfully' });
-        } catch(error) {
-            const messageError = error.data.respose.error || error.data.respose.message
-            res.status(400).json({message: messageError || 'Failed to update custumer points'});
-        }
-
+    if (!customer) {
+      const { httpStatusCode, code, message } =
+        errorResponse("CUSTOMER_NOT_FOUND");
+      return res.status(httpStatusCode).json({ code, message });
     }
 
+    customer.points += totalPoints;
+
+    await Customer.update(customer);
+
+    res.status(200).json({ message: "Customer points updated successfully" });
+  } catch (error) {
+    console.log(`CustomerController - getCustomer: ${error}`);
+    const { httpStatusCode, code, message } = errorResponse(
+      "INTERNAL_SERVER_ERROR",
+    );
+    res.status(httpStatusCode).json({ code, message });
+  }
+}
+
+module.exports = {
+  createCustomer,
+  getCustomer,
+  updatePoints,
 };

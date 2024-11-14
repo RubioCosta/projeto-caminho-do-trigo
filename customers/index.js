@@ -1,31 +1,30 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
+const express = require("express");
 const app = express();
-const conn = require('./db/conn');
+const { syncDatabase } = require("./db/conn");
 
 // Variables
 const port = process.env.PORT || 3001;
 
 // Routes
-const routesCustomer = require('./routes/customerRoutes');
-
-// Models
-const Customer = require('./models/Customer');
+const routesCustomer = require("./routes/customerRoutes");
 
 app.use(express.json());
 
-app.use('/api/v1/customer', routesCustomer);
+app.use("/api/v1/customer", routesCustomer);
 
-app.get('*', (req, res) => {
-    res.send('Customers page');
+app.get("*", (req, res) => {
+  res.send("Customer Page");
 });
 
-conn.sync().then(() => {
-    console.log('Database synced');
+syncDatabase()
+  .then(() => {
     app.listen(port, () => {
-        console.log('Server is running on port: ' + port);
+      console.log(`Server is running on port: ${port}`);
     });
-}).catch((err) => {
-    console.error('Error syncing database:', err);
-});
+  })
+  .catch((err) => {
+    console.error("Error syncing database:", err);
+    process.exit(1);
+  });

@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "docker:start": "docker compose up -d"
+    "start": "npm run services:start && nodemon index.js",
+    "services:start": "docker compose up -d",
+    "services:stop": "docker compose down",
+    "lint:check": "prettier --check .",
+    "lint:fix": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -17,6 +20,7 @@
     "sequelize": "^6.37.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
   }
 }

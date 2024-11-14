@@ -1,10 +1,14 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const controllerCustomer = require('../controllers/CustomerController');
+const {
+  createCustomer,
+  getCustomer,
+  updatePoints,
+} = require("../controllers/CustomerController");
 
-router.post('/', controllerCustomer.createCustomer);
-router.get('/:cpfCnpj', controllerCustomer.getCustomer);
-router.put('/points', controllerCustomer.updatePoints)
+router.post("/", createCustomer);
+router.get("/:cpfCnpj", getCustomer);
+router.put("/points", updatePoints);
 
 module.exports = router;
