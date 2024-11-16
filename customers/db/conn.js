@@ -1,7 +1,7 @@
 const { Sequelize } = require("sequelize");
 const { sleep } = require("../utils/utils");
 
-const MAX_RETRIES = 5;
+const MAX_RETRIES = 4;
 
 const database = process.env.MYSQL_DATABASE;
 const username = process.env.MYSQL_USER;
@@ -15,7 +15,7 @@ const conn = new Sequelize(database, username, password, {
   dialect: "mysql",
 });
 
-async function syncDatabase(force = false, retry = 0) {
+async function syncDatabase(force = false, retry = 1) {
   console.info("Waiting for the database to start...");
 
   try {
@@ -25,10 +25,10 @@ async function syncDatabase(force = false, retry = 0) {
     console.info("Syncing the database...");
     await conn.sync({ force });
   } catch (error) {
-    if (retry < MAX_RETRIES) {
-      console.warn(`Attempt ${retry + 1} of ${MAX_RETRIES}`);
-      await sleep(10);
-      syncDatabase(false, retry + 1)
+    if (retry <= MAX_RETRIES) {
+      console.warn(`Attempt ${retry} of ${MAX_RETRIES}`);
+      await sleep(retry * 5);
+      syncDatabase(false, retry + 1);
     } else {
       console.warn("Max retries reached.");
     }

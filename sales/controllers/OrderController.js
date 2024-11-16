@@ -5,101 +5,129 @@ const Order = require('../models/Order');
 // Service
 const { getCustomer } = require('../service/customersService');
 
-module.exports = class OrderController {
+// Utils
+const { isValidPaymentMethod, isValidTypeSale } = require('../utils/validation');
+const { error } = require('../utils/utils');
     
-    static async createOrder(req, res) {
+async function createOrder(req, res) {
+    try {            
         const { idOrder, cpfCnpjCustomer, totalValue, paymentMethod, typeSale } = req.body;
 
-        if (!idOrder || !cpfCnpjCustomer || !totalValue || !paymentMethod || !typeSale) return res.status(400).json({ message: 'All fields must be informed' });
-        if (!Number(totalValue)) return res.status(400).json({ message: 'Total Value must be a numeric value' });
+        if (!idOrder || !cpfCnpjCustomer || !totalValue || !paymentMethod || !typeSale) 
+            throw error('REQUIRED_FIELD_MISSING')
 
-        try {            
-            const customer = await getCustomer(cpfCnpjCustomer);
-            if(!customer) {
-                return res.status(400).json({message: 'Customer not found'});
-            }
+        if (!Number(totalValue)) throw error('INVALID_FIELD_TYPE');
 
-            const data = {
-                idOrder,
-                cpfCnpjCustomer,
-                totalValue,
-                paymentMethod,
-                typeSale
-            }
+        if (!isValidPaymentMethod(paymentMethod)) throw error('INVALID_PAYMENT_METHOD');
 
-            await Order.create(data)
+        if (!isValidTypeSale(typeSale)) throw error('INVALID_TYPE_SALE');
 
-            res.status(201).json({ message: 'Order created successfully' });
-        } catch(error) {
-            const messageError = error?.response?.data?.error || error?.response?.data?.message;
-            res.status(400).json({message: messageError || 'Failed to create order' });
+        const customer = await getCustomer(cpfCnpjCustomer);
+        if(!customer) throw error('CUSTOMER_NOT_FOUND');
+
+        const data = {
+            idOrder,
+            cpfCnpjCustomer,
+            totalValue,
+            paymentMethod,
+            typeSale
         }
-    }
 
-    static async updateOrder(req, res) {
+        await Order.create(data)
+
+        res.status(201).json({ message: 'Order created successfully' });
+    } catch(error) {
+        if (error.code)
+            return res
+              .status(error.httpStatusCode)
+              .json({ code: error.code, message: error.message });
+      
+          console.log(`CustomerController - createCustomer: ${error}`);
+          const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
+          res.status(httpStatusCode).json({ code, message });
+    }
+}
+
+async function updateOrder(req, res) {
+    try {
         const { idOrder } = req.params;
         const { totalValue, status } = req.body;
 
-        if (!totalValue && !status) {
-            return res.status(400).json({ message: 'All fields must be informed' });
-        }
+        if (!totalValue && !status) throw error('REQUIRED_FIELD_MISSING');
 
-        if (totalValue && !Number(totalValue)) {
-            return res.status(400).json({ message: 'Total Value must be a numeric value' });
-        }
+        if (!Number(totalValue)) throw error('INVALID_FIELD_TYPE');
 
-        try {
-            const order = await Order.findOne({ where: { idOrder } });
-            if (!order) {
-                return res.status(404).json({ message: 'Order not found' });
-            }
+        const order = await Order.findOne({ where: { idOrder } });
+        if (!order) throw error('ORDER_NOT_FOUND');
 
-            const updateData = {};
-            if (totalValue !== undefined) updateData.totalValue = totalValue;
-            if (status !== undefined) updateData.status = status;
+        const updateData = {};
+        if (totalValue) updateData.totalValue = totalValue;
+        if (status) updateData.status = status;
 
-            await Order.update(updateData, { where: { idOrder } });
-            res.status(200).json({ message: 'Order updated successfully' });
-        } catch (error) {
-            const messageError = error?.response?.data?.error || error?.response?.data?.message;
-            res.status(400).json({message: messageError || 'Failed to update order' });
-        }
+        await Order.update(updateData, { where: { idOrder } });
+
+        res.status(200).json({ message: 'Order updated successfully' });
+    } catch (error) {
+        if (error.code)
+            return res
+              .status(error.httpStatusCode)
+              .json({ code: error.code, message: error.message });
+      
+          console.log(`CustomerController - createCustomer: ${error}`);
+          const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
+          res.status(httpStatusCode).json({ code, message });
     }
+}
 
-    static async getOrder(req, res) {
+async function getOrder(req, res) {
+    try {
         const { idOrder } = req.params;
 
-        if (!idOrder) return res.status(400).json({ message: 'All fields must be informed' });
+        if (!idOrder) throw error('REQUIRED_FIELD_MISSING');
 
-        try {
-            const order = await Order.findOne({ where: { idOrder } });
-            if (!order) {
-                return res.status(404).json({ message: 'Order not found' });
-            }
+        const order = await Order.findOne({ where: { idOrder } });
+        if (!order) throw error('ORDER_NOT_FOUND');
 
-            res.status(200).json(order);
-        } catch (error) {
-            const messageError = error?.response?.data?.error || error?.response?.data?.message;
-            res.status(400).json({message: messageError || 'Failed to get order' });
-        }
+        res.status(200).json(order);
+    } catch (error) {
+        if (error.code)
+            return res
+              .status(error.httpStatusCode)
+              .json({ code: error.code, message: error.message });
+      
+          console.log(`CustomerController - createCustomer: ${error}`);
+          const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
+          res.status(httpStatusCode).json({ code, message });
     }
+}
 
-    static async deleteOrder(req, res) {
+async function deleteOrder(req, res) {
+    try {
         const { idOrder } = req.params;
 
-        if (!idOrder) return res.status(400).json({ message: 'All fields must be informed' });
+        if (!idOrder) throw error('REQUIRED_FIELD_MISSING');
 
-        try {
-            const order = await Order.findOne({ where: { idOrder } });
-            if (!order) {
-                return res.status(404).json({ message: 'Order not found' });
-            }
+        const order = await Order.findOne({ where: { idOrder } });
+        if (!order) throw error('ORDER_NOT_FOUND');
 
-            await Order.destroy({ where: { idOrder } });
-            res.status(200).json({ message: 'Order deleted successfully' });
-        } catch (error) {
-            const messageError = error?.response?.data?.error || error?.response?.data?.message;
-            res.status(400).json({message: messageError || 'Failed to delete the order' });
-        }
+        await Order.destroy({ where: { idOrder } });
+
+        res.status(200).json({ message: 'Order deleted successfully' });
+    } catch (error) {
+        if (error.code)
+            return res
+              .status(error.httpStatusCode)
+              .json({ code: error.code, message: error.message });
+      
+          console.log(`CustomerController - createCustomer: ${error}`);
+          const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
+          res.status(httpStatusCode).json({ code, message });
     }
-};
+}
+
+module.exports = {
+    createOrder,
+    updateOrder,
+    getOrder,
+    deleteOrder
+}

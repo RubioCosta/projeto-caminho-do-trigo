@@ -5,7 +5,7 @@ const {
   createCustomer,
   getCustomer,
   updatePoints,
-} = require("../controllers/CustomerController");
+} = require("../../../controllers/CustomerController");
 
 router.post("/", createCustomer);
 router.get("/:cpfCnpj", getCustomer);

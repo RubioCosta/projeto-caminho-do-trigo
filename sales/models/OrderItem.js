@@ -1,6 +1,6 @@
-const {DataTypes} = require('sequelize');
+const { DataTypes } = require('sequelize');
 
-const conn = require('../db/conn');
+const { conn } = require('../db/conn');
 
 const OrderItems = conn.define('OrderItems', {
     idOrder: {

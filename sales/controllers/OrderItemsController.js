@@ -1,81 +1,125 @@
+// Service
 const Product = require('../service/productService');
+
+// Models
 const OrderItem = require('../models/OrderItem');
 const Order = require('../models/Order');
 
-module.exports = class OrderItemsController {
+// Utils
+const { error } = require('../utils/utils');
 
-    static async createOrderItem(req, res) {
+async function createOrderItem(req, res) {
+    try {
         const { idOrder, idProduct, qtdProduct } = req.body;
-        
-        if (!idOrder || !idProduct || !qtdProduct) return res.status(400).json({ message: 'All fields must be informed' });
-        if (!Number(qtdProduct)) return res.status(400).json({ message: 'Quantity must be a numeric value' });
 
-        try {
-            const order = await Order.findOne({ where: { idOrder } });
-            if (!order) return res.status(400).json({ message: 'Unregistered order' });
+        if (!idOrder || !idProduct || !qtdProduct) throw error('REQUIRED_FIELD_MISSING');
 
-            const product = await Product.getProduct(idProduct);
-            if (!product) return res.status(400).json({ message: 'Unregistered product' });
+        if (!Number(qtdProduct)) throw error('INVALID_FIELD_TYPE')
 
-            const data = {
-                idOrder,
-                idProduct,
-                quantity: qtdProduct,
-                pointsProduct: product.points
-            };
+        const order = await Order.findOne({ where: { idOrder } });
+        if (!order) throw error('ORDER_NOT_FOUND');
 
-            await OrderItem.create(data);
-            res.status(201).json({ message: 'Item created successfully' });
-        } catch (error) {
-            const errorMessage = error?.data?.response?.error || error?.data?.response?.message
-            res.status(400).json({ message: errorMessage || 'Failed to create order item' });
-        }
+        const product = await Product.getProduct(idProduct);
+        if (!product) throw error('PRODUCT_NOT_FOUND');
+
+        const data = {
+            idOrder,
+            idProduct,
+            quantity: qtdProduct,
+            pointsProduct: product.points
+        };
+
+        await OrderItem.create(data);
+
+        res.status(201).json({ message: 'Item created successfully' });
+    } catch (error) {
+        if (error.code)
+            return res
+              .status(error.httpStatusCode)
+              .json({ code: error.code, message: error.message });
+      
+          console.log(`CustomerController - createCustomer: ${error}`);
+          const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
+          res.status(httpStatusCode).json({ code, message });
     }
+}
 
-    static async deleteOrderItem(req, res) {
+async function deleteOrderItem(req, res) {
+    try {
         const { idItem } = req.params;
 
-        try {
-            const orderItem = await OrderItem.findByPk({ id: idItem });
-            if (!orderItem) return res.status(404).json({ message: 'Order item not found' });
+        if (!idItem) throw error('REQUIRED_FIELD_MISSING');
 
-            await OrderItem.destroy({ where: { id: idItem } });
-            res.status(200).json({ message: 'Order item deleted successfully' });
-        } catch (error) {
-            const errorMessage = error?.data?.response?.error || error?.data?.response?.message
-            res.status(400).json({ message: errorMessage || 'Failed to delete item from order' });
-        }
+        const orderItem = await OrderItem.findByPk({ id: idItem });
+        if (!orderItem) throw error('ORDER_ITEM_NOT_FOUND');
+
+        await OrderItem.destroy({ where: { id: idItem } });
+
+        res.status(200).json({ message: 'Order item deleted successfully' });
+    } catch (error) {
+        if (error.code)
+            return res
+              .status(error.httpStatusCode)
+              .json({ code: error.code, message: error.message });
+      
+          console.log(`CustomerController - createCustomer: ${error}`);
+          const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
+          res.status(httpStatusCode).json({ code, message });
     }
+}
 
-    static async updateOrderItem(req, res) {
+async function updateOrderItem(req, res) {
+    try {
         const { idItem } = req.params;
         const { qtdProduct } = req.body;
 
-        if (!Number(qtdProduct)) return res.status(400).json({ message: 'Quantity must be a numeric value' });
+        if (!idItem || !qtdProduct) throw error('REQUIRED_FIELD_MISSING');
 
-        try {
-            const orderItem = await OrderItem.findByPk({ id: idItem });
-            if (!orderItem) return res.status(404).json({ message: 'Order item not found' });
+        if (!Number(qtdProduct)) throw error('INVALID_FIELD_TYPE');
 
-            await OrderItem.update({ quantity: qtdProduct }, { where: { id: idItem } });
-            res.status(200).json({ message: 'Order item updated successfully' });
-        } catch (e) {
-            const errorMessage = error?.data?.response?.error || error?.data?.response?.message
-            res.status(400).json({ message: errorMessage || 'Failed to update order item' });
-        }
+        const orderItem = await OrderItem.findByPk({ id: idItem });
+        if (!orderItem) throw error('ORDER_ITEM_NOT_FOUND');
+
+        await OrderItem.update({ quantity: qtdProduct }, { where: { id: idItem } });
+
+        res.status(200).json({ message: 'Order item updated successfully' });
+    } catch (error) {
+        if (error.code)
+            return res
+              .status(error.httpStatusCode)
+              .json({ code: error.code, message: error.message });
+      
+          console.log(`CustomerController - createCustomer: ${error}`);
+          const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
+          res.status(httpStatusCode).json({ code, message });
     }
+}
 
-    static async getOrderItems(req, res) {
+async function getOrderItems(req, res) {
+    try {
         const { idOrder } = req.params;
 
-        try {
-            const orderItems = await OrderItem.findAll({ where: { idOrder } });
-            if (orderItems.length === 0) return res.status(400).json({ message: 'No order items found for this order' });
+        if (!idOrder) throw error('REQUIRED_FIELD_MISSING');
 
-            res.status(200).json(orderItems);
-        } catch (e) {
-            const errorMessage = error?.data?.response?.error || error?.data?.response?.message
-            res.status(400).json({ message: errorMessage || 'Failed to get order items' });
-        }
+        const orderItems = await OrderItem.findAll({ where: { idOrder } });
+        if (orderItems.length === 0) throw error('ORDER_ITEMS_NOT_FOUND');
+
+        res.status(200).json(orderItems);
+    } catch (error) {
+        if (error.code)
+            return res
+              .status(error.httpStatusCode)
+              .json({ code: error.code, message: error.message });
+      
+          console.log(`CustomerController - createCustomer: ${error}`);
+          const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
+          res.status(httpStatusCode).json({ code, message });
     }
+}
+
+module.exports = {
+    createOrderItem,
+    deleteOrderItem,
+    updateOrderItem,
+    getOrderItems
 };

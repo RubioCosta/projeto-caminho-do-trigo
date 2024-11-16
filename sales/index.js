@@ -1,33 +1,26 @@
 require('dotenv').config();
 
+const cors = require('cors');
 const express = require('express');
 const app = express();
-const conn = require('./db/conn');
+const { syncDatabase } = require('./db/conn');
+const router = require('./routes');
 
 // Variables
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT;
+const BASE_URL = process.env.BASE_URL
 
-// Routes
-const routesOrderItems = require('./routes/orderItemsRoutes');
-const routesOrder = require('./routes/orderRoutes');
-
-// Models
-const OrderItem = require('./models/OrderItem');
-
+app.use(cors({ origin: `${BASE_URL}:${PORT}` }));
 app.use(express.json());
 
-app.use('/api/v1/order-items', routesOrderItems);
-app.use('/api/v1/order', routesOrder);
+app.use('/api', router);
 
-app.get('*', (req, res) => {
-    res.send('Sales page');
-});
-
-conn.sync().then(() => {
-    console.log('Database synced');
-    app.listen(port, () => {
-        console.log('Server is running on port 3000');
+syncDatabase()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error('Error syncing database:', error);
     });
-}).catch((err) => {
-    console.error('Error syncing database:', err);
-});

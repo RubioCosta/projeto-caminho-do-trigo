@@ -1,8 +1,9 @@
 require('dotenv').config()
-const jayson = require('jayson');
-const conn = require('./db/conn');
 
-const PORT_PRODUCTS = process.env.PORT_PRODUCTS;
+const jayson = require('jayson');
+const { syncDatabase } = require('./db/conn');
+
+const PORT = process.env.PORT_PRODUCTS;
 
 // Controller
 const IngredientsController = require('./controller/IngredientsController');
@@ -11,10 +12,13 @@ const server = jayson.server({
   ...IngredientsController
 });
 
-conn.sync().then(() => {
-  server.http().listen(PORT_PRODUCTS, () => {
-    console.log(`Conectado na porta ${PORT_PRODUCTS}`);
+syncDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port: ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error syncing database:", error);
+    process.exit(1);
   });
-}).catch((err) => {
-  console.error('Error syncing database:', err);
-});
