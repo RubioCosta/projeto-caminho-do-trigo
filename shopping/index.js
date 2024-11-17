@@ -1,20 +1,26 @@
-require('dotenv').config();
-const jayson = require('jayson');
-const conn = require('./db/conn');
+require("dotenv").config();
 
-const PORT_SHOPPING = process.env.PORT_SHOPPING
+const cors = require("cors");
+const express = require("express");
+const app = express();
+const { syncDatabase } = require("./db/conn");
+const router = require("./routes");
 
-// Controller
-const PurchaseOrderController = require('./controller/PurchaseOrderController');
+// Variables
+const PORT = process.env.PORT;
+const BASE_URL = process.env.BASE_URL;
 
-const server = jayson.server({
-  ...PurchaseOrderController
-});
+app.use(cors({ origin: `${BASE_URL}:${PORT}` }));
+app.use(express.json());
 
-conn.sync().then(() => {
-  server.http().listen(PORT_SHOPPING, () => {
-    console.log(`Conectado na porta ${PORT_SHOPPING}`);
+app.use("/api", router);
+
+syncDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error syncing database:", error);
   });
-}).catch((err) => {
-  console.error('Error syncing database:', err);
-});

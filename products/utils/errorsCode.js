@@ -29,4 +29,32 @@ module.exports = {
     message: "Cliente não encontrado.",
     httpStatusCode: 404,
   },
+
+  // Ingredients
+  INGREDIENT_NOT_FOUND: {
+    code: "INGREDIENT_NOT_FOUND",
+    message: "Ingrediente não encontrado.",
+    httpStatusCode: 404,
+  },
+
+  // Products
+  PRODUCT_NOT_FOUND: {
+    code: "PRODUCT_NOT_FOUND",
+    message: "Produto não encontrado.",
+    httpStatusCode: 404,
+  },
+
+  // Recipes]
+  RECIPE_NOT_FOUND: {
+    code: "RECIPE_NOT_FOUND",
+    message: "Receita não encontrada.",
+    httpStatusCode: 404,
+  },
+
+  // RecipeIngredients
+  RECIPE_INGREDIENT_NOT_FOUND: {
+    code: "RECIPE_INGREDIENT_NOT_FOUND",
+    message: "Ingrediente da receita não encontrado.",
+    httpStatusCode: 404,
+  },
 };

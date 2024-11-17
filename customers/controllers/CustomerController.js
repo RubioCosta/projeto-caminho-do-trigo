@@ -31,13 +31,13 @@ async function createCustomer(req, res) {
       points,
       createdAt,
     });
-  } catch (error) {
-    if (error.code)
+  } catch (err) {
+    if (err.code)
       return res
-        .status(error.httpStatusCode)
-        .json({ code: error.code, message: error.message });
+        .status(err.httpStatusCode)
+        .json({ code: err.code, message: err.message });
 
-    console.log(`CustomerController - createCustomer: ${error}`);
+    console.log(`CustomerController - createCustomer: ${err}`);
     const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
     res.status(httpStatusCode).json({ code, message });
   }
@@ -59,11 +59,11 @@ async function getCustomer(req, res) {
     if (!customer) throw error("CUSTOMER_NOT_FOUND");
 
     res.status(200).json(customer);
-  } catch (error) {
-    if (error.code)
+  } catch (err) {
+    if (err.code)
       return res
-        .status(error.httpStatusCode)
-        .json({ code: error.code, message: error.message });
+        .status(err.httpStatusCode)
+        .json({ code: err.code, message: err.message });
 
     console.log(`CustomerController - getCustomer: ${error}`);
     const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
@@ -93,11 +93,11 @@ async function updatePoints(req, res) {
     await Customer.update(customer);
 
     res.status(200).json({ message: "Customer points updated successfully" });
-  } catch (error) {
-    if (error.code)
+  } catch (err) {
+    if (err.code)
       return res
-        .status(error.httpStatusCode)
-        .json({ code: error.code, message: error.message });
+        .status(err.httpStatusCode)
+        .json({ code: err.code, message: err.message });
 
     console.log(`CustomerController - updatePoints: ${error}`);
     const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");

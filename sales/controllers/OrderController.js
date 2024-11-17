@@ -11,9 +11,9 @@ const { error } = require('../utils/utils');
     
 async function createOrder(req, res) {
     try {            
-        const { idOrder, cpfCnpjCustomer, totalValue, paymentMethod, typeSale } = req.body;
+        const { cpfCnpj, totalValue, paymentMethod, typeSale, idTaxCoupon } = req.body;
 
-        if (!idOrder || !cpfCnpjCustomer || !totalValue || !paymentMethod || !typeSale) 
+        if (!cpfCnpj || !totalValue || !paymentMethod || !typeSale || !idTaxCoupon) 
             throw error('REQUIRED_FIELD_MISSING')
 
         if (!Number(totalValue)) throw error('INVALID_FIELD_TYPE');
@@ -22,27 +22,34 @@ async function createOrder(req, res) {
 
         if (!isValidTypeSale(typeSale)) throw error('INVALID_TYPE_SALE');
 
-        const customer = await getCustomer(cpfCnpjCustomer);
+        const customer = await getCustomer(cpfCnpj);
         if(!customer) throw error('CUSTOMER_NOT_FOUND');
 
         const data = {
-            idOrder,
-            cpfCnpjCustomer,
+            cpfCnpj,
             totalValue,
             paymentMethod,
-            typeSale
+            typeSale,
+            idTaxCoupon
         }
 
-        await Order.create(data)
+        const order = await Order.create(data);
 
-        res.status(201).json({ message: 'Order created successfully' });
-    } catch(error) {
-        if (error.code)
+        const { id, createdAt, status } = order;
+
+        res.status(201).json({
+            id,
+            createdAt,
+            status,
+            message: 'Order created successfully'
+        });
+    } catch(err) {
+        if (err.code)
             return res
-              .status(error.httpStatusCode)
-              .json({ code: error.code, message: error.message });
+              .status(err.httpStatusCode)
+              .json({ code: err.code, message: err.message });
       
-          console.log(`CustomerController - createCustomer: ${error}`);
+          console.log(`CustomerController - createCustomer: ${err}`);
           const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
           res.status(httpStatusCode).json({ code, message });
     }
@@ -67,13 +74,13 @@ async function updateOrder(req, res) {
         await Order.update(updateData, { where: { idOrder } });
 
         res.status(200).json({ message: 'Order updated successfully' });
-    } catch (error) {
-        if (error.code)
+    } catch (err) {
+        if (err.code)
             return res
-              .status(error.httpStatusCode)
-              .json({ code: error.code, message: error.message });
+              .status(err.httpStatusCode)
+              .json({ code: err.code, message: err.message });
       
-          console.log(`CustomerController - createCustomer: ${error}`);
+          console.log(`CustomerController - createCustomer: ${err}`);
           const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
           res.status(httpStatusCode).json({ code, message });
     }
@@ -90,10 +97,10 @@ async function getOrder(req, res) {
 
         res.status(200).json(order);
     } catch (error) {
-        if (error.code)
+        if (err.code)
             return res
-              .status(error.httpStatusCode)
-              .json({ code: error.code, message: error.message });
+              .status(err.httpStatusCode)
+              .json({ code: err.code, message: err.message });
       
           console.log(`CustomerController - createCustomer: ${error}`);
           const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");
@@ -114,10 +121,10 @@ async function deleteOrder(req, res) {
 
         res.status(200).json({ message: 'Order deleted successfully' });
     } catch (error) {
-        if (error.code)
+        if (err.code)
             return res
-              .status(error.httpStatusCode)
-              .json({ code: error.code, message: error.message });
+              .status(err.httpStatusCode)
+              .json({ code: err.code, message: err.message });
       
           console.log(`CustomerController - createCustomer: ${error}`);
           const { httpStatusCode, code, message } = error("INTERNAL_SERVER_ERROR");

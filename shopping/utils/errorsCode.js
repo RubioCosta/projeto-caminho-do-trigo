@@ -61,10 +61,22 @@ module.exports = {
     message: "Produto não encontrado.",
     httpStatusCode: 404,
   },
-  
+
   PRODUCT_FETCH_FAILED: {
     code: "PRODUCT_FETCH_FAILED",
     message: "Não foi possível buscar o produto.",
+    httpStatusCode: 500,
+  },
+
+  INGREDEINT_NOT_FOUND: {
+    code: "INGREDEINT_NOT_FOUND",
+    message: "Ingrediente não encontrado.",
+    httpStatusCode: 404,
+  },
+
+  INGREDIENT_FETCH_FAILED: {
+    code: "INGREDIENT_FETCH_FAILED",
+    message: "Não foi possível buscar o ingrediente.",
     httpStatusCode: 500,
   },
 
@@ -79,5 +91,18 @@ module.exports = {
     code: "ORDER_ITEMS_NOT_FOUND",
     message: "Itens do pedido não encontrados.",
     httpStatusCode: 404,
+  },
+
+  // Shopping
+  SUPPLIER_NOT_FOUND: {
+    code: "SUPPLIER_NOT_FOUND",
+    message: "Fornecedor não encontrado.",
+    httpStatusCode: 404,
+  },
+
+  SUPPLIER_ALREADY_EXISTS: {
+    code: "SUPPLIER_ALREADY_EXISTS",
+    message: "Fornecedor já cadastrado.",
+    httpStatusCode: 400,
   },
 };

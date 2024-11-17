@@ -1,23 +1,30 @@
-const jayson = require('jayson');
+const jayson = require("jayson");
 
-const client = jayson.client.http({ port: 8081 });
+const BASE_URL_PRODUCT = process.env.BASE_URL_PRODUCT;
+const PORT_PRODUCT = process.env.PORT_PRODUCT;
 
-function getIngredientById(idIngredient) {
-  try {
-    return new Promise((resolve, reject) => {
-      client.request('findIngredientById', [{ idIngredient }], (err, response) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        }
-        resolve(response.result);
-      })
+const client = jayson.client.http({
+  port: PORT_PRODUCT,
+  hostname: BASE_URL_PRODUCT,
+});
+
+function findIngredientById(idIngredient) {
+  return new Promise((resolve, reject) => {
+    client.request("findIngredientById", { idIngredient }, (err, response) => {
+      if (err) {
+        const { code } = err;
+
+        if (code === "ECONNREFUSED")
+          return reject(error("INGREDIENT_FETCH_FAILED"));
+
+        return reject(error("INGREDEINT_NOT_FOUND"));
+      }
+
+      resolve(response.result);
     });
-  } catch (error) {
-    console.error(error);
-  }
+  });
 }
 
-module.exports = { 
-  getIngredientById 
+module.exports = {
+  findIngredientById,
 };

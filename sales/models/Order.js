@@ -31,7 +31,8 @@ const Order = conn.define('Order', {
   status: {
     type: DataTypes.ENUM('open', 'closed'),
     allowNull: false,
-    required: true
+    required: true,
+    defaultValue: 'open'
   }
 });
 
