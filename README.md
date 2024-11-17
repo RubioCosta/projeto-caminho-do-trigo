@@ -1,4 +1,5 @@
 ------------------------------------------------ Serviços --------------------------------------------------
+
 Produtos
 - Produto(idProduto, nomeProduto, valorProduto, qtdEstoque, pontosProduto)
 - Receita(idReceita, nomeReceita)
