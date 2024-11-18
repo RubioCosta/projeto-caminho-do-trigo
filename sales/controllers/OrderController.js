@@ -7,6 +7,7 @@ const { getCustomer } = require('../service/customersService');
 
 // Utils
 const { isValidPaymentMethod, isValidTypeSale } = require('../utils/validation');
+const { sendMessage, getMessage } = require('../utils/invoiceUtils');
 const { error } = require('../utils/utils');
     
 async function createOrder(req, res) {
@@ -34,6 +35,8 @@ async function createOrder(req, res) {
         }
 
         const order = await Order.create(data);
+
+        await sendMessage('invoice', JSON.stringify(order));
 
         const { id, createdAt, status } = order;
 
@@ -118,6 +121,10 @@ async function deleteOrder(req, res) {
         if (!order) throw error('ORDER_NOT_FOUND');
 
         await Order.destroy({ where: { idOrder } });
+
+        const orderInvoice = await getMessage('invoice');
+
+        console.log("Retirado da Fila: ", orderInvoice);
 
         res.status(200).json({ message: 'Order deleted successfully' });
     } catch (error) {
