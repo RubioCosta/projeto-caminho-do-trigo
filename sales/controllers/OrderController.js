@@ -36,7 +36,7 @@ async function createOrder(req, res) {
 
         const order = await Order.create(data);
 
-        await sendMessage('invoice', JSON.stringify(order));
+        //await sendMessage('invoice', JSON.stringify(order));
 
         const { id, createdAt, status } = order;
 
@@ -122,9 +122,9 @@ async function deleteOrder(req, res) {
 
         await Order.destroy({ where: { idOrder } });
 
-        const orderInvoice = await getMessage('invoice');
+        //const orderInvoice = await getMessage('invoice');
 
-        console.log("Retirado da Fila: ", orderInvoice);
+        //console.log("Retirado da Fila: ", orderInvoice);
 
         res.status(200).json({ message: 'Order deleted successfully' });
     } catch (error) {
